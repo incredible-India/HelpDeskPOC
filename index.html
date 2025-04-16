@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome To Incadea Help Desk</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #d66920, #928dab);
+      color: white;
+      display: flex;
+      justify-content: center; /* Center the content horizontally */
+      align-items: center; /* Center the content vertically */
+      height: 100vh;
+      padding: 0 20px;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: row; /* Arrange image and chat box side by side */
+      max-width: 1000px;
+      width: 100%;
+      height: 80vh;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Style for the image container */
+    .image-container {
+      flex: 0 1 40%; /* Image takes up 40% of the width */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .image-container img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    /* Style for the messages and chat box */
+    .chat-box {
+      flex: 1; /* Chat box takes the remaining space */
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;  /* Enable scrolling */
+      margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 8px;
+      max-height: calc(100vh - 250px);  /* Adjust height for chat messages */
+    }
+
+    .message {
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 80%;
+    }
+
+    .user {
+      background-color: #4a4e69;
+      align-self: flex-end;
+    }
+
+    .bot {
+      background-color: #f14616;
+      align-self: flex-start;
+    }
+
+    form {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #22223b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #4a4e69;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <!-- Image Container -->
+    <div class="image-container">
+      <img src="./Chat bot-bro.svg" alt="Chatbot Image" />
+    </div>
+
+    <!-- Chat Box -->
+    <div class="chat-box">
+      <h2>💬 Incadea Help Desk</h2>
+      <div class="messages" id="messages"></div>
+      <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Ask me anything..." autocomplete="off" required />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("user-input");
+    const messages = document.getElementById("messages");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const query = input.value.trim();
+      if (!query) return;
+
+      appendMessage("user", query);
+      input.value = "";
+
+      const res = await fetch("http://127.0.0.1:8000/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ Query: query })
+      });
+
+      const data = await res.json();
+      appendMessage("bot", data.answer || data);
+    });
+
+    function appendMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.className = `message ${sender}`;
+      msg.innerText = text;
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
+</body>
+</html>
